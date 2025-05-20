@@ -12,30 +12,19 @@ if (window.gl === null) {
 else {
   window.resources = new Resources();
   window.model = new Model()
+  window.pressed = {
+    'KeyW': false,
+    'KeyS': false,
+    'KeyA': false,
+    'KeyD': false
+  }
   document.addEventListener('keydown', (e) => {
-    const position = window.model.playerPosition
-    switch (e.code) {
-      case 'KeyW':
-        position.y++;
-        break;
-      case 'KeyS':
-        position.y--;
-        break;
-      case 'KeyA':
-        position.x++;
-        break;
-      case 'KeyD':
-        position.x--;
-        break;
-      case 'KeyQ':
-        window.model.playerRotation+=0.1;
-        break;
-      case 'KeyE':
-        window.model.playerRotation-=0.1;
-        break;
-    }
+    window.pressed[e.code] = true
   })
-  preload()
+  document.addEventListener('keyup', (e) => {
+    window.pressed[e.code] = false
+  })
+  await preload()
   main()
 }
 

@@ -1,4 +1,4 @@
-function drawScene(gl, programInfo, buffers, length, texture) {
+function drawScene(gl, programInfo, buffers, length, texture, position, rotation, lighters) {
   gl.enable(gl.DEPTH_TEST); // Enable depth testing
   gl.depthFunc(gl.LEQUAL); // Near things obscure far things
 
@@ -11,14 +11,16 @@ function drawScene(gl, programInfo, buffers, length, texture) {
   // note: glmatrix.js always has the first argument
   // as the destination to receive the result.
   mat4.perspective(projectionMatrix, fieldOfView, aspect, zNear, zFar);
-  mat4.translate(projectionMatrix,projectionMatrix, [0,0,0])
+  const playerPosition = window.model.playerPosition;
+  mat4.translate(projectionMatrix, projectionMatrix, [0,-3,-3])
 
   // Set the drawing position to the "identity" point, which is
   // the center of the scene.
   const modelViewMatrix = mat4.create();
-  const position = window.model.playerPosition
-  mat4.translate(modelViewMatrix, modelViewMatrix, [position.x,-2,position.y])
   mat4.rotateY(modelViewMatrix, modelViewMatrix, window.model.playerRotation)
+  mat4.translate(modelViewMatrix, modelViewMatrix, [playerPosition.x, 0, playerPosition.y])
+  mat4.translate(modelViewMatrix, modelViewMatrix, [position.x,position.y,position.z])
+  mat4.rotateY(modelViewMatrix, modelViewMatrix, rotation)
 
   // Tell WebGL how to pull out the positions from the position
   // buffer into the vertexPosition attribute.
@@ -27,6 +29,8 @@ function drawScene(gl, programInfo, buffers, length, texture) {
   setTextureAttribute(gl, buffers, programInfo);
 
   setColorAttribute(gl, buffers, programInfo);
+
+  setNormalAttribute(gl, buffers, programInfo);
 
   //setNormalAttribute(gl, buffers, programInfo);
 
@@ -48,7 +52,7 @@ function drawScene(gl, programInfo, buffers, length, texture) {
     modelViewMatrix
   );
 
-  /*const nMatrix = mat3.create();
+  const nMatrix = mat3.create();
   mat3.normalFromMat4(nMatrix, modelViewMatrix);
 
   gl.uniformMatrix3fv(
@@ -56,16 +60,26 @@ function drawScene(gl, programInfo, buffers, length, texture) {
     false,
     nMatrix
   );
-  gl.uniform3fv(programInfo.uniformLocations.uniformLightPosition, [0, 3, 10]);
+  const positions = new Array(100).fill([0,0,0])
+  const difuse = new Array(100).fill([0,0,0])
+  const specular = new Array(100).fill([0,0,0])
+  lighters.forEach((l,i) => {
+    const vec = vec3.create()
+    vec3.add(vec, vec, [l.position[0] + playerPosition.x, l.position[1], l.position[2] + playerPosition.y])
+    vec3.rotateY(vec, vec, [0,0,0], window.model.playerRotation)
+    positions[i] = [vec[0], vec[1], vec[2]]
+    difuse[i] = l.diffuse
+    specular[i] = l.specular
+  })
+  gl.uniform1i(programInfo.uniformLocations.uniformLightersCount, lighters.length);
+  gl.uniform3fv(programInfo.uniformLocations.uniformLightPositions, positions.flat());
+  gl.uniform3fv(programInfo.uniformLocations.uniformDiffuseLightColors, difuse.flat());
+  gl.uniform3fv(programInfo.uniformLocations.uniformSpecularLightColors, specular.flat());
+  gl.uniform3fv(programInfo.uniformLocations.uniformPlayerPosition, [playerPosition.x,-3,playerPosition.y])
   //соствавляющие цвета
   gl.uniform3fv(programInfo.uniformLocations.uniformAmbientLightColor, [0.5, 0.5, 0.5]);
-  gl.uniform3fv(programInfo.uniformLocations.uniformDiffuseLightColor, [1.0, 1.0, 1.0]);
-  gl.uniform3fv(programInfo.uniformLocations.uniformSpecularLightColor, [1.0, 1.0, 1.0]);*/
 
   // Tell WebGL we want to affect texture unit 0
-
-  
-  
 
   gl.activeTexture(gl.TEXTURE0);
 
@@ -79,7 +93,7 @@ function drawScene(gl, programInfo, buffers, length, texture) {
     const vertexCount = length / 3;
     const type = gl.UNSIGNED_SHORT;
     const offset = 0;
-    gl.drawElements(gl.TRIANGLE_STRIP, vertexCount, type, offset);
+    gl.drawElements(gl.TRIANGLES, vertexCount, type, offset);
   }
 }
 

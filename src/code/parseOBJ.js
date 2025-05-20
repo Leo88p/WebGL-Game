@@ -18,13 +18,38 @@ export default function parseOBJ(text) {
     [],   // normals
   ];
 
+  const geometries = [];
+  let geometry;
+  let material = 'default';
+ 
   function newGeometry() {
     // If there is an existing geometry and it's
     // not empty then start a new one.
     if (geometry && geometry.data.position.length) {
       geometry = undefined;
     }
-    setGeometry();
+  }
+ 
+  function setGeometry() {
+    if (!geometry) {
+      const position = [];
+      const texcoord = [];
+      const normal = [];
+      webglVertexData = [
+        position,
+        texcoord,
+        normal,
+      ];
+      geometry = {
+        material,
+        data: {
+          position,
+          texcoord,
+          normal,
+        },
+      };
+      geometries.push(geometry);
+    }
   }
 
   function addVertex(vert) {
@@ -51,12 +76,17 @@ export default function parseOBJ(text) {
       objTexcoords.push(parts.map(parseFloat));
     },
     f(parts) {
+      setGeometry();
       const numTriangles = parts.length - 2;
       for (let tri = 0; tri < numTriangles; ++tri) {
         addVertex(parts[0]);
         addVertex(parts[tri + 1]);
         addVertex(parts[tri + 2]);
       }
+    },
+    usemtl(parts, unparsedArgs) {
+      material = unparsedArgs;
+      newGeometry();
     },
   };
 
@@ -80,10 +110,10 @@ export default function parseOBJ(text) {
     }
     handler(parts, unparsedArgs);
   }
+  for (const geometry of geometries) {
+    geometry.data = Object.fromEntries(
+        Object.entries(geometry.data).filter(([, array]) => array.length > 0));
+  }
 
-  return {
-    position: webglVertexData[0],
-    texcoord: webglVertexData[1],
-    normal: webglVertexData[2],
-  };
+  return geometries;
 }

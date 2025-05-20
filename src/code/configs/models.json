@@ -1,0 +1,76 @@
+{
+    "Field" : {
+        "model": "Field",
+        "texture": "grass",
+        "position": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+        },
+        "floor": true
+    },
+        "Lantern": {
+        "model": "KyberKrystal",
+        "texture": "Texture",
+        "position": {
+            "x": 0,
+            "y": 2,
+            "z": -4
+        },
+        "lighting": {
+            "diffuse": [0.0, 0.8, 0.8],
+            "specular": [0.0, 1.0, 1.0]
+        }
+    },
+    "Lantern2": {
+        "model": "KyberKrystal",
+        "texture": "Texture2",
+        "position": {
+            "x": 0,
+            "y": 2,
+            "z": 8
+        },
+        "lighting": {
+            "diffuse": [0.8, 0.0, 0.0],
+            "specular": [1.0, 0.0, 0.0]
+        }
+    },
+    "house" : {
+        "model": "house",
+        "texture": "house",
+        "position": {
+            "x": -30,
+            "y": 0,
+            "z": -30
+        }
+    },
+    "snowman" : {
+        "model": "snowman",
+        "texture": "snowman",
+        "position": {
+            "x": 5,
+            "y": 1,
+            "z": 5
+        }
+    },
+    "chair" : {
+        "model": "chair",
+        "texture": "chair",
+        "position": {
+            "x": 10,
+            "y": 2,
+            "z": 10
+        }
+    },
+    "car" : {
+        "model": "Tesla",
+        "texture": "Tesla",
+        "position": {
+            "x": 0,
+            "y": 1,
+            "z": 0
+        },
+        "flip": true,
+        "player": true
+    }
+}
